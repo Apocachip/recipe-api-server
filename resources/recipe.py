@@ -56,17 +56,16 @@ class RecipeListResource(Resource) :
 
     def get(self) :
         # 쿼리 스트링으로 오는 데이터는 아래처럼 처리해준다.
-        
+        offset = request.args.get('offset')
+        limit = request.args.get('limit')
+
         # DB로부터 데이터를 받아서, 클라이언트에 보내준다.
         try :
             connection = get_connection()
-            
-            offset = request.args.get('offset')
-            limit = request.args.get('limit')
 
-            query = '''
-                    select * from recipe
-                    limit'''+offset+''' , '''+limit+''';'''
+            query = '''select *
+                    from recipe
+                    limit '''+offset+''' , '''+limit+''';'''
 
             #select 문은, dictionary = True를 해준다.
             cursor = connection.cursor(dictionary = True)
