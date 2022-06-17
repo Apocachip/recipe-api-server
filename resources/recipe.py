@@ -56,27 +56,38 @@ class RecipeListResource(Resource) :
 
     def get(self) :
         # 쿼리 스트링으로 오는 데이터는 아래처럼 처리해준다.
-        offset = request.args.get('offset')
-        limit = request.args.get('limit')
         
         # DB로부터 데이터를 받아서, 클라이언트에 보내준다.
         try :
             connection = get_connection()
             
+            offset = request.args.get('offset')
+            limit = request.args.get('limit')
+
             query = '''
                     select * from recipe
-                    limit %s, %s;
-                    '''
-            record = (offset, limit)
+                    limit'''+offset+''' , '''+limit+''';'''
 
+            #select 문은, dictionary = True를 해준다.
             cursor = connection.cursor(dictionary = True)
 
-            cursor.execute(query, record)
+            cursor.execute(query)
 
             # select 문은, 아래 함수를 이용해서, 데이터를 가져온다.
             result_list = cursor.fetchall()
 
             print(result_list)
+            
+            # 중요, DB에서 가져온 timestamp는
+            # 파이썬의 datetime 으로 자동 변환된다.
+            # 문제는, 이 데이터를 json으로 바로 보낼 수 없으므로
+            # 문자열로 바꾼뒤 저장하여 보낸다.
+
+            i = 0
+            for record in result_list :
+                result_list[i]['created_at'] = record['created_at'].isoformat()
+                result_list[i]['updated_at'] = record['updated_at'].isoformat()
+                i = i + 1
 
             cursor.close()
             connection.close()
@@ -86,7 +97,9 @@ class RecipeListResource(Resource) :
             cursor.close()
             connection.close()
 
-        return
+            return {"error" : str(e)}, 503
+
+        return {"result" : "success", "count" : len(result_list), "result_list" : result_list}, 200
 
 
 
