@@ -135,3 +135,5 @@ class RecipeResource(Resource) :
             return {'error' : str(e)}, 503
 
         return {'result' : 'success'}, 200
+
+# CRUD
