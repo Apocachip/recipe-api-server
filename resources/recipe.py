@@ -59,7 +59,32 @@ class RecipeListResource(Resource) :
         offset = request.args.get('offset')
         limit = request.args.get('limit')
         
-        print(offset, limit)
+        # DB로부터 데이터를 받아서, 클라이언트에 보내준다.
+        try :
+            connection = get_connection()
+            
+            query = '''
+                    select * from recipe
+                    limit %s, %s;
+                    '''
+            record = (offset, limit)
+
+            cursor = connection.cursor(dictionary = True)
+
+            cursor.execute(query, record)
+
+            # select 문은, 아래 함수를 이용해서, 데이터를 가져온다.
+            result_list = cursor.fetchall()
+
+            print(result_list)
+
+            cursor.close()
+            connection.close()
+
+        except mysql.connector.Error as e :
+            print(e)
+            cursor.close()
+            connection.close()
 
         return
 
