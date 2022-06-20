@@ -1,3 +1,5 @@
+from datetime import datetime
+from datetime import timedelta
 from http import HTTPStatus
 from flask import request
 from flask_jwt_extended import create_access_token
@@ -82,7 +84,7 @@ class UserRegisterResource(Resource) :
         # JWT 로 암호화 해서 보내준다.
 
         # 암호화를 하는 방법
-        access_token = create_access_token(user_id)
+        access_token = create_access_token(user_id, expires_delta=datetime.timedelta)
 
         return {'result' : 'success', 'access_token' : access_token}, 200
 
