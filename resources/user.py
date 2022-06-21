@@ -1,7 +1,7 @@
 import datetime
 from http import HTTPStatus
 from flask import request
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, get_jwt, jwt_required
 from flask_restful import Resource
 from mysql.connector.errors import Error
 from mysql_connection import get_connection
@@ -83,7 +83,7 @@ class UserRegisterResource(Resource) :
         # JWT 로 암호화 해서 보내준다.
 
         # 암호화를 하는 방법
-        access_token = create_access_token(user_id, expires_delta=datetime.timedelta(minutes=1))
+        access_token = create_access_token(user_id)
 
         return {'result' : 'success', 'access_token' : access_token}, 200
 
@@ -156,3 +156,23 @@ class UserLoginResource(Resource) :
         access_token = create_access_token(user_info['id'])
 
         return {'result' : 'success', 'access_token' : access_token}, 200
+
+# POST /users/logout  header: access_token
+# 엑세스 토큰을 만료 시키겠다는 뜻
+
+jwt_blacklist = set()
+
+# 로그아웃 기능을 하는 클래스
+class UserLogoutResource(Resource) :
+
+    # header에 엑세스 토큰이 있는 유저만 처리한다 즉,
+    # 로그인이 되어있지 않은 사람은 로그아웃 할 필요가 없다.
+    @jwt_required()
+    def post(self) :
+
+        jti = get_jwt()['jti']
+        print(jti)
+
+        jwt_blacklist.add(jti)
+
+        return {'result' : 'success'}, 200

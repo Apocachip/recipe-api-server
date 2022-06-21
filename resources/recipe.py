@@ -15,6 +15,7 @@ import mysql.connector
 class RecipeListResource(Resource) :
     # restful api 의 method 에 해당하는 함수 작성
 
+    # 이 함수를 실행하려면 jwt 토큰이 꼭 필요하다.
     @jwt_required()
     def post(self) :
         # api 실행 코드를 여기에 작성
